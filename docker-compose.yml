@@ -1,0 +1,205 @@
+networks:
+    frontend_network:
+        name: "${PREFIX}_${FRONTEND_NETWORK_NAME}"
+        labels:
+            environment: ${ENVIRONMENT}
+        driver: ${NETWORK_DRIVERS}
+
+volumes:
+    app:
+        name: "${PREFIX}_${APP_NAME}"
+        driver: ${VOLUMES_DRIVERS}
+        labels:
+            environment: ${ENVIRONMENT}
+    mariadb:
+        name: "${PREFIX}_${MARIADB_SERVICE_NAME}"
+        driver: ${VOLUMES_DRIVERS}
+        labels:
+            environment: ${ENVIRONMENT}
+            service: mariadb
+    minio:
+        name: "${PREFIX}_${MINIO_SERVICE_NAME}"
+        driver: ${VOLUMES_DRIVERS}
+        labels:
+            environment: ${ENVIRONMENT}
+            service: minio
+    redis:
+        name: "${PREFIX}_${REDIS_SERVICE_NAME}"
+        driver: ${VOLUMES_DRIVERS}
+        labels:
+            environment: ${ENVIRONMENT}
+            service: redis
+    nginx:
+        name: "${PREFIX}_${NGINX_SERVICE_NAME}"
+        driver: ${VOLUMES_DRIVERS}
+        labels:
+            environment: ${ENVIRONMENT}
+            service: nginx
+
+services:
+    nginx:
+        image: nginx:${NGINX_VERSION}
+        container_name: "${PREFIX}_${NGINX_SERVICE_NAME}"
+        ports:
+            - "${NGINX_HTTP_PORT}:80"
+            - "${NGINX_HTTPS_PORT}:443"
+        environment:
+            - APP_NAME=${APP_NAME}
+            - DEFAULT_HOST=${DEFAULT_HOST}
+            - VIRTUAL_HOST=${VIRTUAL_HOST}
+            - PHP_FPM_NAME=${PREFIX}_${PHP_FPM_SERVICE_NAME}
+            - ENVIRONMENT=${ENVIRONMENT}
+        volumes:
+            - app:/etc/nginx/conf.d
+            - ${NGINX_FILES_PATH}/templates:/etc/nginx/templates
+            - ${NGINX_FILES_PATH}/entrypoint.d:/entrypoint.d
+            - ${APP_PATH}:/var/www/${APP_NAME}
+            - ${NGINX_FILES_PATH}/html:/var/www/html
+        networks:
+            - frontend_network
+        restart: ${NGINX_RESTART_POLICY}
+        entrypoint: /bin/sh -c "chmod +x /entrypoint.d/entrypoint.sh && /entrypoint.d/entrypoint.sh"
+        healthcheck:
+            test: ["CMD", "${NGINX_HEALTHCHECK_CMD}"]
+            interval: ${NGINX_HEALTHCHECK_INTERVAL}
+            retries: ${NGINX_HEALTHCHECK_RETRIES}
+            timeout: ${NGINX_HEALTHCHECK_TIMEOUT}
+            start_period: ${NGINX_HEALTHCHECK_START_PERIOD}
+
+    php:
+        build:
+            context: "${PHP_FPM_FILES_PATH}"
+            dockerfile: Dockerfile
+            args:
+                PHP_FPM_VERSION: ${PHP_FPM_VERSION}
+                ADDITIONAL_SYSTEM_PACKAGES: ${ADDITIONAL_SYSTEM_PACKAGES}
+                ADDITIONAL_PHP_EXTENSIONS: ${ADDITIONAL_PHP_EXTENSIONS}
+        environment:
+            - PHP_FPM_VERSION=${PHP_FPM_VERSION}
+            - ENVIRONMENT=${ENVIRONMENT}
+        image: ${PHP_FPM_SERVICE_NAME}
+        container_name: "${PREFIX}_${PHP_FPM_SERVICE_NAME}"
+        ports:
+            - "${PHP_FPM_PORT}:9000"
+            - "${PHP_XDEBUG_PORT}:9003"
+        volumes:
+            - ${PHP_FPM_FILES_PATH}/php.ini:/usr/local/etc/php/php-ini-volume
+            - ${PHP_FPM_FILES_PATH}/entrypoint.d:/entrypoint.d
+            - ${APP_PATH}:/var/www/${APP_NAME}
+            - ${PHP_FPM_FILES_PATH}/www:/var/www/php-www
+        networks:
+            - frontend_network
+        restart: ${PHP_FPM_RESTART_POLICY}
+        entrypoint: /bin/sh -c "chmod +x /entrypoint.d/entrypoint.sh && /entrypoint.d/entrypoint.sh"
+        healthcheck:
+            test: ["CMD", "${PHP_FPM_HEALTHCHECK_CMD}"]
+            interval: ${PHP_FPM_HEALTHCHECK_INTERVAL}
+            retries: ${PHP_FPM_HEALTHCHECK_RETRIES}
+            timeout: ${PHP_FPM_HEALTHCHECK_TIMEOUT}
+            start_period: ${PHP_FPM_HEALTHCHECK_START_PERIOD}
+    nodejs:
+        image: node:${NODE_VERSION}
+        container_name: "${PREFIX}_${NODE_SERVICE_NAME}"
+        ports:
+            - "${NODE_PORT}:3000"
+        environment:
+            - NODE_ENV=${ENVIRONMENT}
+        volumes:
+            - ${APP_PATH}/slim-containers/nodejs/entrypoint.d:/entrypoint.d
+        networks:
+            - frontend_network
+        restart: ${NODE_RESTART_POLICY}
+        command: ["node", "/entrypoint.d/server.js"]
+        healthcheck:
+            test: ["CMD", "curl", "--silent", "--fail", "http://localhost:3000/health"]
+            interval: ${NODE_HEALTHCHECK_INTERVAL}
+            retries: ${NODE_HEALTHCHECK_RETRIES}
+            timeout: ${NODE_HEALTHCHECK_TIMEOUT}
+            start_period: ${NODE_HEALTHCHECK_START_PERIOD}
+
+    mariadb:
+        image: mariadb:${MARIADB_VERSION}
+        container_name: "${PREFIX}_${MARIADB_SERVICE_NAME}"
+        environment:
+            MYSQL_ROOT_PASSWORD: "${MARIADB_ROOT_PASSWORD}"
+            MYSQL_ROOT_HOST: "${MARIADB_ROOT_ACCESS}"
+            MYSQL_DATABASE: "${MARIADB_DATABASE}"
+            MYSQL_USER: "${MARIADB_USERNAME}"
+            MYSQL_PASSWORD: "${MARIADB_PASSWORD}"
+            MYSQL_USER_HOST: "${MARIADB_USER_HOST}"
+            MYSQL_USER_PRIVILEGES: "${MARIADB_USER_PRIVILEGES}"
+            MYSQL_USER_PRIVILEGES_TARGET: "${MARIADB_USER_PRIVILEGES_TARGET}"
+            MYSQL_ALLOW_EMPTY_PASSWORD: ${MARIADB_ALLOW_EMPTY_PASSWORD}
+        ports:
+            - "${MARIADB_PORT}:3306"
+        volumes:
+            - "mariadb:/var/lib/mysql"
+            - "${MARIADB_ENTRYPOINT_PATH}:/docker-entrypoint-initdb.d"
+        networks:
+            - frontend_network
+        healthcheck:
+            test: ["CMD", "${MARIADB_HEALTHCHECK_CMD}"]
+            interval: ${MARIADB_HEALTHCHECK_INTERVAL}
+            retries: ${MARIADB_HEALTHCHECK_RETRIES}
+            timeout: ${MARIADB_HEALTHCHECK_TIMEOUT}
+            start_period: ${MARIADB_HEALTHCHECK_START_PERIOD}
+        restart: ${MARIADB_RESTART_POLICY}
+
+    redis:
+        image: redis:${REDIS_VERSION}
+        container_name: "${PREFIX}_${REDIS_SERVICE_NAME}"
+        ports:
+            - "${REDIS_PORT}:6379"
+        volumes:
+            - redis:/data
+        networks:
+            - frontend_network
+        restart: ${REDIS_RESTART_POLICY}
+        environment:
+            - REDIS_PASSWORD=${REDIS_PASSWORD}
+        command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+        healthcheck:
+            test: ["CMD", "${REDIS_HEALTHCHECK_CMD}"]
+            interval: ${REDIS_HEALTHCHECK_INTERVAL}
+            retries: ${REDIS_HEALTHCHECK_RETRIES}
+            timeout: ${REDIS_HEALTHCHECK_TIMEOUT}
+            start_period: ${REDIS_HEALTHCHECK_START_PERIOD}
+
+    certbot:
+        image: certbot/certbot:${CERTBOT_VERSION}
+        container_name: ${CERTBOT_SERVICE_NAME}
+        volumes:
+            - app:/etc/letsencrypt
+            - app:/etc/nginx/conf.d:ro
+        entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+        networks:
+            - frontend_network
+        restart: ${CERTBOT_RESTART_POLICY}
+        healthcheck:
+            test: ["CMD", "${CERTBOT_HEALTHCHECK_CMD}"]
+            interval: ${CERTBOT_HEALTHCHECK_INTERVAL}
+            retries: ${CERTBOT_HEALTHCHECK_RETRIES}
+            timeout: ${CERTBOT_HEALTHCHECK_TIMEOUT}
+            start_period: ${CERTBOT_HEALTHCHECK_START_PERIOD}
+
+    minio:
+        image: minio/minio:${MINIO_VERSION}
+        container_name: ${MINIO_SERVICE_NAME}
+        environment:
+            - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+            - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+        ports:
+            - "${MINIO_PORT}:9000"
+            - "${MINIO_WEB_PORT}:9001"
+        networks:
+            - frontend_network
+        volumes:
+            - minio:/data
+        command: server /data --console-address ":9001"
+        restart: ${MINIO_RESTART_POLICY}
+        healthcheck:
+            test: ["CMD", "${MINIO_HEALTHCHECK_CMD}"]
+            interval: ${MINIO_HEALTHCHECK_INTERVAL}
+            timeout: ${MINIO_HEALTHCHECK_TIMEOUT}
+            retries: ${MINIO_HEALTHCHECK_RETRIES}
+            start_period: ${MINIO_HEALTHCHECK_START_PERIOD}

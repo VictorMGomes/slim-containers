@@ -1,0 +1,46 @@
+server {
+    listen 80;
+    server_name ${VIRTUAL_HOST} *.${VIRTUAL_HOST};
+    root /var/www/${APP_NAME}/public;
+    index index.php index.html index.htm;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        include fastcgi_params;
+        fastcgi_pass ${PHP_FPM_NAME}:9000;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name ${VIRTUAL_HOST} *.${VIRTUAL_HOST};
+    root /var/www/${APP_NAME}/public;
+    index index.php index.html index.htm;
+
+    ssl_certificate ${CERT_DIR}/${VIRTUAL_HOST}.crt;
+    ssl_certificate_key ${CERT_DIR}/${VIRTUAL_HOST}.key;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        include fastcgi_params;
+        fastcgi_pass ${PHP_FPM_NAME}:9000;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+}
