@@ -57,6 +57,8 @@ It is optimized for development environments, but with minimal adjustments, it c
 
 #### Next Releases: Improvements
 
+- **Documentation**
+- **Enhanced environment variable management**
 - **More NGINX Templates**  
 - **Automatic Handling of Certbot/Let’s Encrypt Certificates**  
 - **PHP Worker Container**  
