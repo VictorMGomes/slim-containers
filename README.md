@@ -17,8 +17,6 @@ It is optimized for development environments, but with minimal adjustments, it c
 - **[Redis](https://github.com/redis/redis)**: A fast, open-source, in-memory data structure store, used as a database, cache, and message broker.
 - **[MinIO](https://github.com/minio/minio)**: An open-source object storage service, compatible with Amazon S3.
 
-### Features Provided
-
 ### Instructions
 
 #### Setup
