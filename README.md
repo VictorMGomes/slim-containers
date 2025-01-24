@@ -46,7 +46,7 @@ It is optimized for development environments, but with minimal adjustments, it c
 - To start selected services in detached mode (background):
 
     ```bash
-    docker-compose -f slim-containers/docker-compose.yml up -d nginx php mariadb
+    docker-compose -f slim-containers/docker-compose.yml up -d nginx php-fpm mariadb
     ```
 
 - To stop and remove containers:
