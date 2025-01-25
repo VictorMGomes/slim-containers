@@ -1,4 +1,4 @@
-# Slim-Containers
+# Slim Containers
 
 ## A Lightweight Docker Environment for Full Stack Applications
 
@@ -52,13 +52,3 @@ It is optimized for development environments, but with minimal adjustments, it c
     ```bash
     docker-compose -f slim-containers/docker-compose.yml down
     ```
-
-#### Next Releases: Improvements
-
-- **Documentation**
-- **Enhanced environment variable management**
-- **More NGINX Templates**  
-- **Automatic Handling of Certbot/Let’s Encrypt Certificates**  
-- **PHP Worker Container**  
-- **PHP Async Container**  
-- **NGINX Proxy for Node.js Container**  
