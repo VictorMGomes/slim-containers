@@ -105,7 +105,7 @@ services:
         environment:
             - NODE_ENV=${ENVIRONMENT}
         volumes:
-            - ${APP_PATH}/slim-containers/nodejs/entrypoint.d:/entrypoint.d
+            - ${APP_PATH}/slim-containers/source/services/nodejs/entrypoint.d:/entrypoint.d
         networks:
             - frontend_network
         restart: ${NODE_RESTART_POLICY}
