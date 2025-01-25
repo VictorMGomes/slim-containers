@@ -52,3 +52,15 @@ It is optimized for development environments, but with minimal adjustments, it c
     ```bash
     docker-compose -f slim-containers/docker-compose.yml down
     ```
+
+### Contributing
+
+To contributing with this project read the contributing **[guide](CONTRIBUTING.md)**.
+
+### Upcomming features
+
+Check the upcomming features in **[TODO](TODO.md)** of this project.
+
+### Changelog
+
+Checkout the releases **[changelogS](CHANGELOG.md)** of this project.
