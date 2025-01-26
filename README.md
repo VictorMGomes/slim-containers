@@ -69,4 +69,4 @@ Checkout the releases **[changelogS](CHANGELOG.md)** of this project.
 
 ***If this project has been useful to you, consider making a donation to help it grow.***
 
-**You can choose a donation method by clicking here.**
+**You can choose a donation method by clicking [here](https://donate.victormgomes.net)**
