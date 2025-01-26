@@ -55,17 +55,17 @@ It is optimized for development environments, but with minimal adjustments, it c
 
 ### Contributing
 
-To contributing with this project read the contributing **[guide](CONTRIBUTING.md)**.
+To contribute to this project, please read the contributing **[guide](CONTRIBUTING.md)**.
 
-### Upcomming features
+### Upcoming Features
 
 Check the upcomming features in **[TODO](TODO.md)** of this project.
 
 ### Changelog
 
-Checkout the releases **[changelogS](CHANGELOG.md)** of this project.
+Check out the release **[changelog](CHANGELOG.md)** for this project.
 
-## 🙏 Donations
+## 🙏 Funding
 
 ***If this project has been useful to you, consider making a donation to help it grow.***
 
