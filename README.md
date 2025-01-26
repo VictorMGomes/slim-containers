@@ -64,3 +64,9 @@ Check the upcomming features in **[TODO](TODO.md)** of this project.
 ### Changelog
 
 Checkout the releases **[changelogS](CHANGELOG.md)** of this project.
+
+## 🙏 Donations
+
+### *If you enjoyed my work or found something useful in this projects, consider making a donation to help me continue contributing to open-source.*
+
+### You can choose a donation method [here](https://donate.victormgomes.net)
