@@ -1,6 +1,19 @@
 {
     "files.associations": {
         ".env.example": "dotenv",
-        "Dockerfile-*": "dockerfile"
-    }
+        "*.env": "dotenv",
+        "*.sh": "shellscript",
+        "*.nginx": "nginx",
+        "*conf.template": "nginx",
+        "Dockerfile*": "dockerfile",
+        "Dockerfile-*": "dockerfile",
+        "compose.yml": "dockercompose",
+        "*.md": "markdown"
+    },
+    "[shellscript]": {
+        "editor.defaultFormatter": "foxundermoon.shell-format",
+        "editor.formatOnSave": true
+    },
+    "shellcheck.executablePath": "",
+    "shellcheck.run": "onSave"
 }

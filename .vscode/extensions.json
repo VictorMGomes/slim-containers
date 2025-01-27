@@ -1,6 +1,11 @@
 {
     "recommendations": [
         "editorconfig.editorconfig",
-        "mikestead.dotenv"
+        "mikestead.dotenv",
+        "timonwong.shellcheck",
+        "foxundermoon.shell-format",
+        "william-voyek.vscode-nginx",
+        "ms-azuretools.vscode-docker",
+        "DavidAnson.vscode-markdownlint"
     ]
 }
