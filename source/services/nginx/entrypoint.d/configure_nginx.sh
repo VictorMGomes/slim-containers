@@ -11,6 +11,13 @@ configure_nginx() {
     sed -i 's|access_log .*|access_log /dev/stdout;|' /etc/nginx/nginx.conf
     sed -i 's|error_log .*|error_log /dev/stderr;|' /etc/nginx/nginx.conf
 
-    envsubst "\$DEFAULT_HOST \$CERT_DIR" < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf
-    envsubst "\$VIRTUAL_HOST \$ENVIRONMENT \$PHP_FPM_NAME \$CERT_DIR \$APP_NAME" < /etc/nginx/templates/laravel.conf.template > /etc/nginx/conf.d/laravel.conf
+    : "${CERT_DIR:?}"
+    : "${DEFAULT_HOST:?}"
+    : "${VIRTUAL_HOST:?}"
+    : "${ENVIRONMENT:?}"
+    : "${PHP_FPM_NAME:?}"
+    : "${APP_NAME:?}"
+
+    envsubst "\$DEFAULT_HOST \$CERT_DIR" </etc/nginx/templates/default.conf.template >/etc/nginx/conf.d/default.conf
+    envsubst "\$VIRTUAL_HOST \$ENVIRONMENT \$PHP_FPM_NAME \$CERT_DIR \$APP_NAME" </etc/nginx/templates/laravel.conf.template >/etc/nginx/conf.d/laravel.conf
 }
