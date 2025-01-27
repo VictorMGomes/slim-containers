@@ -10,7 +10,7 @@ if [ "$ENVIRONMENT" = "production" ]; then
 fi
 
 echo "Using $ENVIRONMENT php.ini"
-cp "$ini_file" /etc/php/$PHP_FPM_VERSION/fpm/php.ini
+cp "$ini_file" /etc/php/"$PHP_FPM_VERSION"/fpm/php.ini
 
 PHP_FPM_CONF="/etc/php/$PHP_FPM_VERSION/fpm/pool.d/www.conf"
 if [ -f "$PHP_FPM_CONF" ]; then
@@ -26,7 +26,14 @@ fi
 if [ "$ENVIRONMENT" = "development" ]; then
     if php-fpm -m | grep "xdebug"; then
         echo "Xdebug is enabled. Copying xdebug.ini file..."
-        cp /usr/local/etc/php/php-ini-volume/xdebug.ini /etc/php/$PHP_FPM_VERSION/fpm/conf.d
+        cp /usr/local/etc/php/php-ini-volume/xdebug.ini /etc/php/"$PHP_FPM_VERSION"/fpm/conf.d
+        
+        if [ -n "$PHP_XDEBUG_MODE" ]; then
+            echo "xdebug.mode=$PHP_XDEBUG_MODE" >> /etc/php/"$PHP_FPM_VERSION"/fpm/conf.d/xdebug.ini
+            echo "Xdebug mode set to '$PHP_XDEBUG_MODE'."
+        else
+            echo "PHP_XDEBUG_MODE is not set. Using default mode."
+        fi
     else
         echo "Xdebug is not enabled."
     fi
@@ -37,5 +44,5 @@ if [ -z "$1" ]; then
     set -- php-fpm -F
 fi
 
-echo "Starting CMD: $@"
+echo "Starting CMD: $*"
 exec "$@"

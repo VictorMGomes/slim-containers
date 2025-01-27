@@ -77,6 +77,7 @@ services:
         environment:
             - PHP_FPM_VERSION=${PHP_FPM_VERSION}
             - ENVIRONMENT=${ENVIRONMENT}
+            - PHP_XDEBUG_MODE=${PHP_XDEBUG_MODE}
         image: ${PHP_FPM_SERVICE_NAME}
         container_name: "${PREFIX}_${PHP_FPM_SERVICE_NAME}"
         ports:
