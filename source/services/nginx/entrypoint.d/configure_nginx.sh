@@ -2,22 +2,24 @@
 
 configure_nginx() {
     local CERT_DIR="$1"
-    local DEFAULT_HOST="$2"
-    local VIRTUAL_HOST="$3"
-    local ENVIRONMENT="$4"
-    local PHP_FPM_NAME="$5"
-    local APP_NAME="$6"
+    local NGINX_DEFAULT_HOST="$2"
+    local NGINX_VIRTUAL_HOSTS_CONFIG="$3"
+    local GENERAL_ENVIRONMENT="$4"
+    local GENERAL_APP_NAME="$5"
+    local GENERAL_SERVICES_PREFIX="$6"
 
     sed -i 's|access_log .*|access_log /dev/stdout;|' /etc/nginx/nginx.conf
     sed -i 's|error_log .*|error_log /dev/stderr;|' /etc/nginx/nginx.conf
 
-    : "${CERT_DIR:?}"
-    : "${DEFAULT_HOST:?}"
-    : "${VIRTUAL_HOST:?}"
-    : "${ENVIRONMENT:?}"
-    : "${PHP_FPM_NAME:?}"
-    : "${APP_NAME:?}"
+    local DEFAULT_SCRIPT="/entrypoint.d/configure_default.sh"
+    chmod +x "$DEFAULT_SCRIPT"
+    # shellcheck disable=SC1090
+    source "$DEFAULT_SCRIPT"
+    configure_default "$NGINX_DEFAULT_HOST" "$CERT_DIR"
 
-    envsubst "\$DEFAULT_HOST \$CERT_DIR" </etc/nginx/templates/default.conf.template >/etc/nginx/conf.d/default.conf
-    envsubst "\$VIRTUAL_HOST \$ENVIRONMENT \$PHP_FPM_NAME \$CERT_DIR \$APP_NAME" </etc/nginx/templates/laravel.conf.template >/etc/nginx/conf.d/laravel.conf
+    local VHOST_SCRIPT="/entrypoint.d/configure_vhosts.sh"
+    chmod +x "$VHOST_SCRIPT"
+    # shellcheck disable=SC1090
+    source "$VHOST_SCRIPT"
+    configure_vhosts "$NGINX_VIRTUAL_HOSTS_CONFIG" "$CERT_DIR" "$GENERAL_ENVIRONMENT" "$GENERAL_APP_NAME" "$GENERAL_SERVICES_PREFIX"
 }

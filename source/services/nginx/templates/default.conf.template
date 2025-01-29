@@ -1,6 +1,6 @@
 server {
     listen 80;
-    server_name ${DEFAULT_HOST};
+    server_name ${NGINX_DEFAULT_HOST};
 
     root /var/www/html;
 
@@ -17,14 +17,14 @@ server {
 
 server {
     listen 443;
-    server_name ${DEFAULT_HOST};
+    server_name ${NGINX_DEFAULT_HOST};
 
     root /var/www/html;
 
     index index.html index.htm;
 
-    ssl_certificate ${CERT_DIR}/${DEFAULT_HOST}.crt;
-    ssl_certificate_key ${CERT_DIR}/${DEFAULT_HOST}.key;
+    ssl_certificate ${CERT_DIR}/${NGINX_DEFAULT_HOST}.crt;
+    ssl_certificate_key ${CERT_DIR}/${NGINX_DEFAULT_HOST}.key;
 
     location / {
         try_files $uri $uri/ =404;
