@@ -1,59 +1,59 @@
 networks:
     frontend_network:
-        name: "${PREFIX}_${FRONTEND_NETWORK_NAME}"
+        name: "${GENERAL_SERVICES_PREFIX}_${GENERAL_FRONTEND_NETWORK_NAME}"
         labels:
-            environment: ${ENVIRONMENT}
-        driver: ${NETWORK_DRIVERS}
+            environment: ${GENERAL_ENVIRONMENT}
+        driver: ${GENERAL_NETWORK_DRIVERS}
 
 volumes:
     app:
-        name: "${PREFIX}_${APP_NAME}"
-        driver: ${VOLUMES_DRIVERS}
+        name: "${GENERAL_SERVICES_PREFIX}_${GENERAL_APP_NAME}"
+        driver: ${GENERAL_VOLUMES_DRIVERS}
         labels:
-            environment: ${ENVIRONMENT}
+            environment: ${GENERAL_ENVIRONMENT}
     mariadb:
-        name: "${PREFIX}_${MARIADB_SERVICE_NAME}"
-        driver: ${VOLUMES_DRIVERS}
+        name: "${GENERAL_SERVICES_PREFIX}_${MARIADB_SERVICE_NAME}"
+        driver: ${GENERAL_VOLUMES_DRIVERS}
         labels:
-            environment: ${ENVIRONMENT}
+            environment: ${GENERAL_ENVIRONMENT}
             service: mariadb
     minio:
-        name: "${PREFIX}_${MINIO_SERVICE_NAME}"
-        driver: ${VOLUMES_DRIVERS}
+        name: "${GENERAL_SERVICES_PREFIX}_${MINIO_SERVICE_NAME}"
+        driver: ${GENERAL_VOLUMES_DRIVERS}
         labels:
-            environment: ${ENVIRONMENT}
+            environment: ${GENERAL_ENVIRONMENT}
             service: minio
     redis:
-        name: "${PREFIX}_${REDIS_SERVICE_NAME}"
-        driver: ${VOLUMES_DRIVERS}
+        name: "${GENERAL_SERVICES_PREFIX}_${REDIS_SERVICE_NAME}"
+        driver: ${GENERAL_VOLUMES_DRIVERS}
         labels:
-            environment: ${ENVIRONMENT}
+            environment: ${GENERAL_ENVIRONMENT}
             service: redis
     nginx:
-        name: "${PREFIX}_${NGINX_SERVICE_NAME}"
-        driver: ${VOLUMES_DRIVERS}
+        name: "${GENERAL_SERVICES_PREFIX}_${NGINX_SERVICE_NAME}"
+        driver: ${GENERAL_VOLUMES_DRIVERS}
         labels:
-            environment: ${ENVIRONMENT}
+            environment: ${GENERAL_ENVIRONMENT}
             service: nginx
 
 services:
     nginx:
         image: nginx:${NGINX_VERSION}
-        container_name: "${PREFIX}_${NGINX_SERVICE_NAME}"
+        container_name: "${GENERAL_SERVICES_PREFIX}_${NGINX_SERVICE_NAME}"
         ports:
             - "${NGINX_HTTP_PORT}:80"
             - "${NGINX_HTTPS_PORT}:443"
         environment:
-            - APP_NAME=${APP_NAME}
-            - DEFAULT_HOST=${DEFAULT_HOST}
-            - VIRTUAL_HOST=${VIRTUAL_HOST}
-            - PHP_FPM_NAME=${PREFIX}_${PHP_FPM_SERVICE_NAME}
-            - ENVIRONMENT=${ENVIRONMENT}
+            - GENERAL_APP_NAME=${GENERAL_APP_NAME}
+            - NGINX_DEFAULT_HOST=${NGINX_DEFAULT_HOST}
+            - NGINX_VIRTUAL_HOSTS_CONFIG=${NGINX_VIRTUAL_HOSTS_CONFIG}
+            - GENERAL_ENVIRONMENT=${GENERAL_ENVIRONMENT}
+            - GENERAL_SERVICES_PREFIX=${GENERAL_SERVICES_PREFIX}
         volumes:
             - app:/etc/nginx/conf.d
             - ${NGINX_FILES_PATH}/templates:/etc/nginx/templates
             - ${NGINX_FILES_PATH}/entrypoint.d:/entrypoint.d
-            - ${APP_PATH}:/var/www/${APP_NAME}
+            - ${GENERAL_APP_PATH}:/var/www/${GENERAL_APP_NAME}
             - ${NGINX_FILES_PATH}/html:/var/www/html
         networks:
             - frontend_network
@@ -72,22 +72,22 @@ services:
             dockerfile: Dockerfile
             args:
                 PHP_FPM_VERSION: ${PHP_FPM_VERSION}
-                ADDITIONAL_SYSTEM_PACKAGES: ${ADDITIONAL_SYSTEM_PACKAGES}
-                ADDITIONAL_PHP_EXTENSIONS: ${ADDITIONAL_PHP_EXTENSIONS}
+                PHP_FPM_ADDITIONAL_SYSTEM_PACKAGES: ${PHP_FPM_ADDITIONAL_SYSTEM_PACKAGES}
+                PHP_FPM_ADDITIONAL_EXTENSIONS: ${PHP_FPM_ADDITIONAL_EXTENSIONS}
         environment:
             - PHP_FPM_VERSION=${PHP_FPM_VERSION}
-            - ENVIRONMENT=${ENVIRONMENT}
-            - PHP_XDEBUG_MODE=${PHP_XDEBUG_MODE}
+            - GENERAL_ENVIRONMENT=${GENERAL_ENVIRONMENT}
+            - PHP_FPM_XDEBUG_MODE=${PHP_FPM_XDEBUG_MODE}
         image: ${PHP_FPM_SERVICE_NAME}
-        container_name: "${PREFIX}_${PHP_FPM_SERVICE_NAME}"
+        container_name: "${GENERAL_SERVICES_PREFIX}_${PHP_FPM_SERVICE_NAME}"
         ports:
             - "${PHP_FPM_PORT}:9000"
-            - "${PHP_XDEBUG_PORT}:9003"
+            - "${PHP_FPM_XDEBUG_PORT}:9003"
         volumes:
             - ${PHP_FPM_FILES_PATH}/php.ini:/usr/local/etc/php/php-ini-volume
             - ${PHP_FPM_FILES_PATH}/entrypoint.d:/entrypoint.d
-            - ${APP_PATH}:/var/www/${APP_NAME}
-            - ${PHP_FPM_FILES_PATH}/www:/var/www/php-www
+            - ${GENERAL_APP_PATH}:/var/www/${GENERAL_APP_NAME}
+            - ${PHP_FPM_FILES_PATH}/www:/var/www/php
         networks:
             - frontend_network
         restart: ${PHP_FPM_RESTART_POLICY}
@@ -100,13 +100,13 @@ services:
             start_period: ${PHP_FPM_HEALTHCHECK_START_PERIOD}
     nodejs:
         image: node:${NODE_VERSION}
-        container_name: "${PREFIX}_${NODE_SERVICE_NAME}"
+        container_name: "${GENERAL_SERVICES_PREFIX}_${NODE_SERVICE_NAME}"
         ports:
             - "${NODE_PORT}:3000"
         environment:
-            - NODE_ENV=${ENVIRONMENT}
+            - NODE_ENV=${GENERAL_ENVIRONMENT}
         volumes:
-            - ${APP_PATH}/slim-containers/source/services/nodejs/entrypoint.d:/entrypoint.d
+            - ${GENERAL_APP_PATH}/slim-containers/source/services/nodejs/entrypoint.d:/entrypoint.d
         networks:
             - frontend_network
         restart: ${NODE_RESTART_POLICY}
@@ -120,7 +120,7 @@ services:
 
     mariadb:
         image: mariadb:${MARIADB_VERSION}
-        container_name: "${PREFIX}_${MARIADB_SERVICE_NAME}"
+        container_name: "${GENERAL_SERVICES_PREFIX}_${MARIADB_SERVICE_NAME}"
         environment:
             MYSQL_ROOT_PASSWORD: "${MARIADB_ROOT_PASSWORD}"
             MYSQL_ROOT_HOST: "${MARIADB_ROOT_ACCESS}"
@@ -148,7 +148,7 @@ services:
 
     redis:
         image: redis:${REDIS_VERSION}
-        container_name: "${PREFIX}_${REDIS_SERVICE_NAME}"
+        container_name: "${GENERAL_SERVICES_PREFIX}_${REDIS_SERVICE_NAME}"
         ports:
             - "${REDIS_PORT}:6379"
         volumes:
