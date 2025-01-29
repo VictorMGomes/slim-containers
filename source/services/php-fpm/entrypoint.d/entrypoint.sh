@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
 echo "Running entrypoint script..."
-echo "Environment: $ENVIRONMENT"
+echo "Environment: $GENERAL_ENVIRONMENT"
 
 ini_file="/usr/local/etc/php/php-ini-volume/development-php.ini"
 
-if [ "$ENVIRONMENT" = "production" ]; then
+if [ "$GENERAL_ENVIRONMENT" = "production" ]; then
     ini_file="/usr/local/etc/php/php-ini-volume/production-php.ini"
 fi
 
-echo "Using $ENVIRONMENT php.ini"
+echo "Using $GENERAL_ENVIRONMENT php.ini"
 cp "$ini_file" /etc/php/"$PHP_FPM_VERSION"/fpm/php.ini
 
 PHP_FPM_CONF="/etc/php/$PHP_FPM_VERSION/fpm/pool.d/www.conf"
@@ -23,16 +23,16 @@ else
     echo "Warning: $PHP_FPM_CONF not found"
 fi
 
-if [ "$ENVIRONMENT" = "development" ]; then
+if [ "$GENERAL_ENVIRONMENT" = "development" ]; then
     if php-fpm -m | grep "xdebug"; then
         echo "Xdebug is enabled. Copying xdebug.ini file..."
         cp /usr/local/etc/php/php-ini-volume/xdebug.ini /etc/php/"$PHP_FPM_VERSION"/fpm/conf.d
-        
-        if [ -n "$PHP_XDEBUG_MODE" ]; then
-            echo "xdebug.mode=$PHP_XDEBUG_MODE" >> /etc/php/"$PHP_FPM_VERSION"/fpm/conf.d/xdebug.ini
-            echo "Xdebug mode set to '$PHP_XDEBUG_MODE'."
+
+        if [ -n "$PHP_FPM_XDEBUG_MODE" ]; then
+            echo "xdebug.mode=$PHP_FPM_XDEBUG_MODE" >>/etc/php/"$PHP_FPM_VERSION"/fpm/conf.d/xdebug.ini
+            echo "Xdebug mode set to '$PHP_FPM_XDEBUG_MODE'."
         else
-            echo "PHP_XDEBUG_MODE is not set. Using default mode."
+            echo "PHP_FPM_XDEBUG_MODE is not set. Using default mode."
         fi
     else
         echo "Xdebug is not enabled."

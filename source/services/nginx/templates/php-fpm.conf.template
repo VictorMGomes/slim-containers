@@ -1,8 +1,8 @@
 server {
     listen 80;
     server_name ${VIRTUAL_HOST} *.${VIRTUAL_HOST};
-    root /var/www/${APP_NAME}/public;
-    index index.php index.html index.htm;
+    root /var/www/${GENERAL_APP_NAME}${PUBLIC_PATH};
+    index index.php;
 
     location / {
         try_files $uri $uri/ /index.php?$query_string;
@@ -10,21 +10,22 @@ server {
 
     location ~ \.php$ {
         include fastcgi_params;
-        fastcgi_pass ${PHP_FPM_NAME}:9000;
+        fastcgi_pass ${HTTP_SERVICE_NAME}:9000;
         fastcgi_index index.php;
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
     }
 
-    location ~ /\.ht {
+    location ~ /\.(?!well-known).* {
         deny all;
+        return 403;
     }
 }
 
 server {
     listen 443 ssl;
     server_name ${VIRTUAL_HOST} *.${VIRTUAL_HOST};
-    root /var/www/${APP_NAME}/public;
-    index index.php index.html index.htm;
+    root /var/www/${GENERAL_APP_NAME}${PUBLIC_PATH};
+    index index.php;
 
     ssl_certificate ${CERT_DIR}/${VIRTUAL_HOST}.crt;
     ssl_certificate_key ${CERT_DIR}/${VIRTUAL_HOST}.key;
@@ -35,12 +36,13 @@ server {
 
     location ~ \.php$ {
         include fastcgi_params;
-        fastcgi_pass ${PHP_FPM_NAME}:9000;
+        fastcgi_pass ${HTTP_SERVICE_NAME}:9000;
         fastcgi_index index.php;
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
     }
 
-    location ~ /\.ht {
+    location ~ /\.(?!well-known).* {
         deny all;
+        return 403;
     }
 }
