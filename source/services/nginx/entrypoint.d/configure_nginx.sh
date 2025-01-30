@@ -8,8 +8,7 @@ configure_nginx() {
     local GENERAL_APP_NAME="$5"
     local GENERAL_SERVICES_PREFIX="$6"
 
-    sed -i 's|access_log .*|access_log /dev/stdout;|' /etc/nginx/nginx.conf
-    sed -i 's|error_log .*|error_log /dev/stderr;|' /etc/nginx/nginx.conf
+    rm -rf /etc/nginx/conf.d/*
 
     local DEFAULT_SCRIPT="/entrypoint.d/configure_default.sh"
     chmod +x "$DEFAULT_SCRIPT"
