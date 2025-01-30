@@ -10,13 +10,14 @@ server {
         try_files $uri $uri/ =404;
     }
 
-    location ~ /\.ht {
+    location ~ /\.(?!well-known).* {
         deny all;
+        return 403;
     }
 }
 
 server {
-    listen 443;
+    listen 443 ssl;
     server_name ${NGINX_DEFAULT_HOST};
 
     root /var/www/html;
@@ -30,8 +31,9 @@ server {
         try_files $uri $uri/ =404;
     }
 
-    location ~ /\.ht {
+    location ~ /\.(?!well-known).* {
         deny all;
+        return 403;
     }
 }
 
