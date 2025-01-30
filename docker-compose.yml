@@ -104,13 +104,15 @@ services:
         ports:
             - "${NODE_PORT}:3000"
         environment:
-            - NODE_ENV=${GENERAL_ENVIRONMENT}
+            - GENERAL_APP_NAME=${GENERAL_APP_NAME}
+            - NODE_START_COMMAND=${NODE_START_COMMAND}
         volumes:
+            - ${GENERAL_APP_PATH}:/var/www/${GENERAL_APP_NAME}
             - ${GENERAL_APP_PATH}/slim-containers/source/services/nodejs/entrypoint.d:/entrypoint.d
         networks:
             - frontend_network
         restart: ${NODE_RESTART_POLICY}
-        command: ["node", "/entrypoint.d/server.js"]
+        command: ["/bin/bash", "/entrypoint.d/entrypoint.sh"]
         healthcheck:
             test: ["CMD", "curl", "--silent", "--fail", "http://localhost:3000/health"]
             interval: ${NODE_HEALTHCHECK_INTERVAL}
