@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 configure_vhosts() {
-
     local SCRIPT_PATH="/entrypoint.d/create_self-signed_cert.sh"
     chmod +x "$SCRIPT_PATH"
     # shellcheck disable=SC1090
@@ -44,5 +43,4 @@ configure_vhosts() {
 
         create_self_signed_cert "$CERT_DIR" "$VIRTUAL_HOST"
     done
-
 }
