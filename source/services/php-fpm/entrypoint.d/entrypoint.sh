@@ -13,12 +13,10 @@ echo "Using $GENERAL_ENVIRONMENT php.ini"
 cp "$ini_file" /etc/php/"$PHP_FPM_VERSION"/fpm/php.ini
 
 PHP_FPM_CONF="/etc/php/$PHP_FPM_VERSION/fpm/pool.d/www.conf"
+
 if [ -f "$PHP_FPM_CONF" ]; then
     echo "Updating listen address and log configurations in $PHP_FPM_CONF"
-    sed -i 's/listen = .*/listen = 0.0.0.0:9000/' "$PHP_FPM_CONF"
-    sed -i 's/error_log = .*/error_log = \/dev\/stderr/' "$PHP_FPM_CONF"
-    sed -i 's/access.log = .*/access.log = \/dev\/stdout/' "$PHP_FPM_CONF"
-    sed -i 's/slowlog = .*/slowlog = \/dev\/stderr/' "$PHP_FPM_CONF"
+    sed -i 's/^listen = .*/listen = 0.0.0.0:9000/' "$PHP_FPM_CONF" || echo "listen = 0.0.0.0:9000" >>"$PHP_FPM_CONF"
 else
     echo "Warning: $PHP_FPM_CONF not found"
 fi
