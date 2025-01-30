@@ -53,6 +53,67 @@ It is optimized for development environments, but with minimal adjustments, it c
     docker-compose -f slim-containers/docker-compose.yml down
     ```
 
+### Services Configuration
+
+#### Set up `.env` variables with desired configurations
+
+- **NGINX**  
+  You can configure an Nginx reverse proxy by defining the `NGINX_VIRTUAL_HOSTS_CONFIG` variable.  
+  The format of `NGINX_VIRTUAL_HOSTS_CONFIG` follows this structure:  
+  **`VIRTUAL_HOST_DOMAIN:TEMPLATE_NAME:SERVICE_NAME:PUBLIC_PATH`**,  
+  where:  
+  - `VIRTUAL_HOST_DOMAIN` is the domain name,  
+  - `TEMPLATE_NAME` is the Nginx template,  
+  - `SERVICE_NAME` is the container service name,  
+  - `PUBLIC_PATH` is the application's public directory (if applicable).  
+
+  **Examples:**  
+
+  - If your application is a Laravel application:  
+
+    ```bash
+    NGINX_VIRTUAL_HOSTS_CONFIG="app.local:php-fpm:${PHP_FPM_SERVICE_NAME}:/public"
+    ```
+  
+  - If your application has its root folder as the public folder:  
+
+    ```bash
+    NGINX_VIRTUAL_HOSTS_CONFIG="app.local:php-fpm:${PHP_FPM_SERVICE_NAME}:"
+    ```
+  
+  - If your application is a Node.js application:  
+
+    ```bash
+    NGINX_VIRTUAL_HOSTS_CONFIG="app.local:nodejs:${NODE_SERVICE_NAME}:"
+    ```
+  
+  - If you have multiple sites with different domains, separated by a comma `,`, for both PHP-FPM and Node.js:  
+
+    ```bash
+    NGINX_VIRTUAL_HOSTS_CONFIG="app.local:php-fpm:${PHP_FPM_SERVICE_NAME}:/public,app2.local:nodejs:${NODE_SERVICE_NAME}:"
+    ```
+
+  **Important:** For local domains, you need to configure the hosts file of your operating system.  
+
+  - **Windows hosts file path:**  
+
+    ```bash
+    C:\Windows\System32\drivers\etc\hosts
+    ```
+
+  - **Linux hosts file path:**  
+
+    ```bash
+    /etc/hosts
+    ```
+  
+  Add the following lines to your hosts file to map virtual domains:  
+
+  ```bash
+  127.0.0.1 app.local
+  127.0.0.1 app2.local
+  ```
+
 ### Contributing
 
 To contribute to this project, please read the contributing **[guide](CONTRIBUTING.md)**.
