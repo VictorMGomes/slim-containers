@@ -36,6 +36,13 @@ volumes:
             environment: ${GENERAL_ENVIRONMENT}
             service: nginx
 
+    postgresql:
+        name: "${GENERAL_SERVICES_PREFIX}_${POSTGRESQL_SERVICE_NAME}"
+        driver: ${GENERAL_VOLUMES_DRIVERS}
+        labels:
+            environment: ${GENERAL_ENVIRONMENT}
+            service: postgresql
+
 services:
     nginx:
         image: nginx:${NGINX_VERSION}
@@ -206,3 +213,26 @@ services:
             timeout: ${MINIO_HEALTHCHECK_TIMEOUT}
             retries: ${MINIO_HEALTHCHECK_RETRIES}
             start_period: ${MINIO_HEALTHCHECK_START_PERIOD}
+
+    postgresql:
+        image: postgres:${POSTGRESQL_VERSION}
+        container_name: "${GENERAL_SERVICES_PREFIX}_${POSTGRESQL_SERVICE_NAME}"
+        environment:
+            POSTGRES_USER: "${POSTGRESQL_USERNAME}"
+            POSTGRES_PASSWORD: "${POSTGRESQL_PASSWORD}"
+            POSTGRES_DB: "${POSTGRESQL_DATABASE}"
+            POSTGRES_HOST_AUTH_METHOD: "${POSTGRESQL_HOST_AUTH_METHOD}"
+        ports:
+            - "${POSTGRESQL_PORT}:5432"
+        volumes:
+            - postgresql:/var/lib/postgresql/data
+            - "${POSTGRESQL_ENTRYPOINT_PATH}:/docker-entrypoint-initdb.d"
+        networks:
+            - frontend_network
+        restart: ${POSTGRESQL_RESTART_POLICY}
+        healthcheck:
+            test: ["CMD", "pg_isready", "-U", "${POSTGRESQL_USERNAME}"]
+            interval: ${POSTGRESQL_HEALTHCHECK_INTERVAL}
+            retries: ${POSTGRESQL_HEALTHCHECK_RETRIES}
+            timeout: ${POSTGRESQL_HEALTHCHECK_TIMEOUT}
+            start_period: ${POSTGRESQL_HEALTHCHECK_START_PERIOD}
