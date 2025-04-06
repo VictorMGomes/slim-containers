@@ -67,7 +67,7 @@ services:
         restart: ${NGINX_RESTART_POLICY}
         entrypoint: /bin/sh -c "chmod +x /entrypoint.d/entrypoint.sh && /entrypoint.d/entrypoint.sh"
         healthcheck:
-            test: ["CMD", "${NGINX_HEALTHCHECK_CMD}"]
+            test: [ "CMD", "${NGINX_HEALTHCHECK_CMD}" ]
             interval: ${NGINX_HEALTHCHECK_INTERVAL}
             retries: ${NGINX_HEALTHCHECK_RETRIES}
             timeout: ${NGINX_HEALTHCHECK_TIMEOUT}
@@ -100,32 +100,27 @@ services:
         restart: ${PHP_FPM_RESTART_POLICY}
         entrypoint: /bin/sh -c "chmod +x /entrypoint.d/entrypoint.sh && /entrypoint.d/entrypoint.sh"
         healthcheck:
-            test: ["CMD", "${PHP_FPM_HEALTHCHECK_CMD}"]
+            test: [ "CMD", "${PHP_FPM_HEALTHCHECK_CMD}" ]
             interval: ${PHP_FPM_HEALTHCHECK_INTERVAL}
             retries: ${PHP_FPM_HEALTHCHECK_RETRIES}
             timeout: ${PHP_FPM_HEALTHCHECK_TIMEOUT}
             start_period: ${PHP_FPM_HEALTHCHECK_START_PERIOD}
     nodejs:
-        image: node:${NODE_VERSION}
+        build:
+            context: "${NODE_FILES_PATH}"
+            dockerfile: Dockerfile
         container_name: "${GENERAL_SERVICES_PREFIX}_${NODE_SERVICE_NAME}"
+        working_dir: /var/www/${GENERAL_APP_NAME}
         ports:
             - "${NODE_PORT}:3000"
         environment:
             - GENERAL_APP_NAME=${GENERAL_APP_NAME}
-            - NODE_START_COMMAND=${NODE_START_COMMAND}
         volumes:
             - ${GENERAL_APP_PATH}:/var/www/${GENERAL_APP_NAME}
-            - ${GENERAL_APP_PATH}/slim-containers/source/services/nodejs/entrypoint.d:/entrypoint.d
+            - ${NODE_FILES_PATH}/entrypoint.d:/entrypoint.d
         networks:
             - frontend_network
-        restart: ${NODE_RESTART_POLICY}
-        command: ["/bin/bash", "/entrypoint.d/entrypoint.sh"]
-        healthcheck:
-            test: ["CMD", "curl", "--silent", "--fail", "http://localhost:3000/health"]
-            interval: ${NODE_HEALTHCHECK_INTERVAL}
-            retries: ${NODE_HEALTHCHECK_RETRIES}
-            timeout: ${NODE_HEALTHCHECK_TIMEOUT}
-            start_period: ${NODE_HEALTHCHECK_START_PERIOD}
+        restart: ${NODE_RESTART_POLICY:-no}
 
     mariadb:
         image: mariadb:${MARIADB_VERSION}
@@ -148,7 +143,7 @@ services:
         networks:
             - frontend_network
         healthcheck:
-            test: ["CMD", "${MARIADB_HEALTHCHECK_CMD}"]
+            test: [ "CMD", "${MARIADB_HEALTHCHECK_CMD}" ]
             interval: ${MARIADB_HEALTHCHECK_INTERVAL}
             retries: ${MARIADB_HEALTHCHECK_RETRIES}
             timeout: ${MARIADB_HEALTHCHECK_TIMEOUT}
@@ -167,9 +162,9 @@ services:
         restart: ${REDIS_RESTART_POLICY}
         environment:
             - REDIS_PASSWORD=${REDIS_PASSWORD}
-        command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+        command: [ "redis-server", "--requirepass", "${REDIS_PASSWORD}" ]
         healthcheck:
-            test: ["CMD", "${REDIS_HEALTHCHECK_CMD}"]
+            test: [ "CMD", "${REDIS_HEALTHCHECK_CMD}" ]
             interval: ${REDIS_HEALTHCHECK_INTERVAL}
             retries: ${REDIS_HEALTHCHECK_RETRIES}
             timeout: ${REDIS_HEALTHCHECK_TIMEOUT}
@@ -186,7 +181,7 @@ services:
             - frontend_network
         restart: ${CERTBOT_RESTART_POLICY}
         healthcheck:
-            test: ["CMD", "${CERTBOT_HEALTHCHECK_CMD}"]
+            test: [ "CMD", "${CERTBOT_HEALTHCHECK_CMD}" ]
             interval: ${CERTBOT_HEALTHCHECK_INTERVAL}
             retries: ${CERTBOT_HEALTHCHECK_RETRIES}
             timeout: ${CERTBOT_HEALTHCHECK_TIMEOUT}
@@ -208,7 +203,7 @@ services:
         command: server /data --console-address ":9001"
         restart: ${MINIO_RESTART_POLICY}
         healthcheck:
-            test: ["CMD", "${MINIO_HEALTHCHECK_CMD}"]
+            test: [ "CMD", "${MINIO_HEALTHCHECK_CMD}" ]
             interval: ${MINIO_HEALTHCHECK_INTERVAL}
             timeout: ${MINIO_HEALTHCHECK_TIMEOUT}
             retries: ${MINIO_HEALTHCHECK_RETRIES}
@@ -231,7 +226,7 @@ services:
             - frontend_network
         restart: ${POSTGRESQL_RESTART_POLICY}
         healthcheck:
-            test: ["CMD", "pg_isready", "-U", "${POSTGRESQL_USERNAME}"]
+            test: [ "CMD", "pg_isready", "-U", "${POSTGRESQL_USERNAME}" ]
             interval: ${POSTGRESQL_HEALTHCHECK_INTERVAL}
             retries: ${POSTGRESQL_HEALTHCHECK_RETRIES}
             timeout: ${POSTGRESQL_HEALTHCHECK_TIMEOUT}
