@@ -113,6 +113,8 @@ services:
         working_dir: /var/www/${GENERAL_APP_NAME}
         ports:
             - "${NODE_PORT}:3000"
+            - "5173:5173"
+            - "4173:4173"
         environment:
             - GENERAL_APP_NAME=${GENERAL_APP_NAME}
         volumes:
