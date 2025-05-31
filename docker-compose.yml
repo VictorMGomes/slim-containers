@@ -43,6 +43,13 @@ volumes:
             environment: ${GENERAL_ENVIRONMENT}
             service: postgresql
 
+    mongodb:
+        name: "${GENERAL_SERVICES_PREFIX}_${MONGODB_SERVICE_NAME}"
+        driver: ${GENERAL_VOLUMES_DRIVERS}
+        labels:
+            environment: ${GENERAL_ENVIRONMENT}
+            service: mongodb
+
 services:
     nginx:
         image: nginx:${NGINX_VERSION}
@@ -233,3 +240,32 @@ services:
             retries: ${POSTGRESQL_HEALTHCHECK_RETRIES}
             timeout: ${POSTGRESQL_HEALTHCHECK_TIMEOUT}
             start_period: ${POSTGRESQL_HEALTHCHECK_START_PERIOD}
+
+    mongodb:
+        build:
+            context: "${MONGODB_FILES_PATH}"
+            dockerfile: Dockerfile
+            args:
+                MONGODB_VERSION: "${MONGODB_VERSION}"
+        container_name: "${GENERAL_SERVICES_PREFIX}_${MONGODB_SERVICE_NAME}"
+        environment:
+            MONGO_REPLICA_PORT: ${MONGODB_PORT}
+            MONGO_REPLICA_HOST: "${GENERAL_SERVICES_PREFIX}_${MONGODB_SERVICE_NAME}"
+            MONGO_COMMAND: "${MONGODB_COMMAND}"
+            MONGO_INITDB_ROOT_USERNAME: "${MONGODB_USERNAME}"
+            MONGO_INITDB_ROOT_PASSWORD: "${MONGODB_PASSWORD}"
+            MONGO_INITDB_DATABASE: "${MONGODB_DATABASE}"
+            MONGO_KEYFILE_CONTENT: "${MONGO_KEYFILE_CONTENT}"
+        ports:
+            - "${MONGODB_PORT}"
+        volumes:
+            - mongodb:/data/db
+        networks:
+            - frontend_network
+        restart: ${MONGODB_RESTART_POLICY}
+        healthcheck:
+            test: [ "CMD", "mongo", "--eval", "db.adminCommand('ping')" ]
+            interval: ${MONGODB_HEALTHCHECK_INTERVAL}
+            retries: ${MONGODB_HEALTHCHECK_RETRIES}
+            timeout: ${MONGODB_HEALTHCHECK_TIMEOUT}
+            start_period: ${MONGODB_HEALTHCHECK_START_PERIOD}
